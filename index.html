@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>名片智慧人脈庫</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#17212b;--muted:#6b7785;--brand:#174a7e;--line:#dfe5eb;--ok:#287a52;--warn:#b66b00}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--ink)}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 16px}.title{font-weight:800;font-size:20px}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+main{max-width:900px;margin:auto;padding:16px 16px 90px}.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(23,33,43,.04)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:650px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}input,select,textarea{width:100%;border:1px solid #ccd5de;border-radius:10px;padding:11px 12px;font-size:16px;background:#fff;color:var(--ink)}textarea{min-height:78px;resize:vertical}.wide{grid-column:1/-1}
+button,.btn{border:0;border-radius:11px;padding:12px 14px;font-size:15px;font-weight:700;cursor:pointer}.primary{background:var(--brand);color:#fff}.secondary{background:#eaf0f6;color:#173d64}.danger{background:#fff0f0;color:#9b2c2c}.ghost{background:#fff;border:1px solid var(--line)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.camera{display:block;border:2px dashed #9bb1c7;border-radius:14px;padding:18px;text-align:center;background:#f7fbff}.camera input{display:none}.camera strong{display:block;font-size:18px;color:var(--brand)}
+#preview{max-width:100%;max-height:280px;border-radius:12px;margin-top:12px;display:none}.status{font-size:13px;color:var(--muted);margin-top:10px}.status.ok{color:var(--ok)}.status.warn{color:var(--warn)}
+.tabs{display:flex;gap:8px;margin-bottom:14px}.tab{flex:1;background:#e8edf2;color:#43505d}.tab.active{background:var(--brand);color:#fff}.hidden{display:none!important}
+.person{border-top:1px solid var(--line);padding:12px 0}.person:first-child{border-top:0}.person h3{margin:0 0 4px;font-size:16px}.meta{font-size:13px;color:var(--muted)}.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.chip{font-size:11px;background:#edf3f8;color:#315979;border-radius:999px;padding:4px 8px}.empty{text-align:center;color:var(--muted);padding:28px}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kpi div{background:#f5f8fb;border-radius:12px;padding:12px}.kpi b{font-size:22px;display:block}.kpi span{font-size:11px;color:var(--muted)}
+small{color:var(--muted)}
+</style>
+<meta name="theme-color" content="#17365d"></head>
+<body>
+<header><div class="title">名片智慧人脈庫</div><div class="sub">拍照辨識・查重・關係管理・CSV 匯出</div></header>
+<main>
+<div class="tabs"><button class="tab active" data-tab="import">＋ 匯入名片</button><button class="tab" data-tab="contacts">人脈資料庫</button></div>
+<section id="import">
+<div class="panel">
+<div class="actions" style="margin-bottom:10px"><label class="camera" style="flex:1;cursor:pointer"><strong>📷 拍照</strong><span>開啟手機相機</span><input id="cameraPhoto" type="file" accept="image/*" capture="environment"></label><label class="camera" style="flex:1;cursor:pointer"><strong>🖼️ 從相簿選擇</strong><span>選擇現有照片</span><input id="photo" type="file" accept="image/*"></label></div>
+<div id="uploadBadge" role="status" style="padding:12px;border-radius:10px;background:#fff3cd;color:#674d00;font-weight:bold">尚未選取照片</div><div id="photoDetails" class="status"></div><img id="preview" alt="名片預覽" />
+<div class="actions" style="margin-top:12px"><button id="ocrBtn" class="primary">辨識名片</button><button id="clearBtn" class="ghost">清除</button></div>
+<div id="ocrStatus" class="status">請先選擇照片。若在 ChatGPT 檔案預覽中開啟，請改用 Safari 的正式 HTTPS 網址，預覽器可能禁止執行辨識程式。</div>
+</div>
+<div class="panel">
+<div class="grid">
+<div><label>姓名 *</label><input id="name"></div><div><label>公司／組織</label><input id="company"></div>
+<div><label>部門</label><input id="department"></div><div><label>職稱</label><input id="title"></div>
+<div><label>Email</label><input id="email" type="email"></div><div><label>手機／電話</label><input id="phone"></div>
+<div><label>網站／LinkedIn</label><input id="website"></div><div><label>產業</label><input id="industry" placeholder="例如：媒體、金融、MarTech"></div>
+<div><label>專業領域</label><input id="expertise" placeholder="例如：CRM、會員經營"></div><div><label>人物類型</label><select id="type"><option>合作夥伴</option><option>客戶／潛在客戶</option><option>講者／顧問</option><option>供應商／廠商</option><option>媒體／產業人士</option><option>學者／研究者</option><option>其他</option></select></div>
+<div><label>關係分級</label><select id="level"><option>B｜合作關係</option><option>A｜核心關係</option><option>C｜專業資源</option><option>D｜一般人脈</option></select></div><div><label>重要程度</label><select id="importance"><option>中</option><option>高</option><option>低</option></select></div>
+<div><label>認識日期</label><input id="metDate" type="date"></div><div><label>認識場合</label><input id="occasion"></div>
+<div class="wide"><label>怎麼認識／談了什麼</label><textarea id="context" placeholder="例如：會員論壇認識，談跨BU會員整合，對50+合作有興趣"></textarea></div>
+<div class="wide"><label>可合作事項</label><input id="cooperation"></div>
+<div class="wide"><label>下次行動</label><input id="nextAction"></div>
+<div><label>追蹤日期</label><input id="followDate" type="date"></div><div><label>標籤（逗號分隔）</label><input id="tags" placeholder="會員經營, 50+, CRM"></div>
+<div class="wide"><label>OCR 原始文字</label><textarea id="rawText"></textarea></div>
+</div>
+<div id="dup" class="status"></div>
+<div class="actions" style="margin-top:14px"><button id="saveBtn" class="primary">確認並加入資料庫</button></div>
+</div>
+</section>
+<section id="contacts" class="hidden">
+<div class="panel"><div class="kpi"><div><b id="countAll">0</b><span>總人脈</span></div><div><b id="countAB">0</b><span>A/B級</span></div><div><b id="countFollow">0</b><span>待追蹤</span></div></div></div>
+<div class="panel"><input id="search" placeholder="搜尋姓名、公司、職稱、專業、標籤…"><div class="actions" style="margin-top:10px"><button id="exportBtn" class="secondary">匯出 CSV</button><button id="wipeBtn" class="danger">清空本機資料</button></div></div>
+<div class="panel"><div id="list"></div></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id); let imgFile=null;
+const fields=['name','company','department','title','email','phone','website','industry','expertise','type','level','importance','metDate','occasion','context','cooperation','nextAction','followDate','tags','rawText'];
+function contacts(){try{return JSON.parse(localStorage.getItem('cardContacts')||'[]')}catch{return []}}
+function setContacts(v){localStorage.setItem('cardContacts',JSON.stringify(v))}
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function today(){return new Date().toISOString().slice(0,10)} $('metDate').value=today();
+
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');['import','contacts'].forEach(t=>$(t).classList.toggle('hidden',t!==b.dataset.tab));if(b.dataset.tab==='contacts')render()});
+let photoURL=null;
+function handlePhoto(e){
+ const f=e.target.files&&e.target.files[0];
+ if(!f){$('uploadBadge').textContent='尚未選取照片';return;}
+ if(!f.type.startsWith('image/')){$('uploadBadge').textContent='檔案不是圖片，請重新選擇';return;}
+ imgFile=f;
+ if(photoURL)URL.revokeObjectURL(photoURL);
+ photoURL=URL.createObjectURL(f);
+ const preview=$('preview');
+ preview.onload=()=>{$('uploadBadge').textContent='✓ 照片已成功載入，可以按「辨識名片」';$('uploadBadge').style.background='#e3f5e9';$('uploadBadge').style.color='#17683b';};
+ preview.onerror=()=>{$('uploadBadge').textContent='照片已選取，但預覽失敗；請改用 JPG 或 PNG';$('uploadBadge').style.background='#fff3cd';};
+ preview.src=photoURL;preview.style.display='block';
+ $('uploadBadge').textContent='正在載入照片…';
+ $('photoDetails').textContent=`檔案：${f.name||'相機照片'}｜大小：${(f.size/1024/1024).toFixed(2)} MB`;
+ $('ocrStatus').textContent='照片已選取，尚未進行文字辨識。';$('ocrStatus').className='status';
+}
+$('photo').addEventListener('change',handlePhoto);
+$('cameraPhoto').addEventListener('change',handlePhoto);
+function loadScript(src){return new Promise((res,rej)=>{if(window.Tesseract)return res();let s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+$('ocrBtn').onclick=async()=>{if(!imgFile){$('ocrStatus').textContent='請先拍攝或選擇名片照片。';$('ocrStatus').className='status warn';return}try{$('ocrStatus').textContent='載入 OCR 並辨識中…';await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');const r=await Tesseract.recognize(imgFile,'eng+chi_tra',{logger:m=>{if(m.progress)$('ocrStatus').textContent=`辨識中 ${Math.round(m.progress*100)}%`}});let text=r.data.text.trim();$('rawText').value=text;parseCard(text);$('ocrStatus').textContent='辨識完成。請確認姓名、公司、電話與 Email。';$('ocrStatus').className='status ok';checkDup()}catch(e){$('ocrStatus').textContent='辨識失敗：'+(e?.message||String(e))+'。若從 ChatGPT 預覽開啟，請改用部署於 HTTPS 的網頁；也可以先手動建檔。';$('ocrStatus').className='status warn'}};
+function parseCard(t){let lines=t.split(/\n+/).map(x=>x.trim()).filter(Boolean);let email=(t.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[])[0]||'';let phone=(t.match(/(?:\+?886[-\s]?)?(?:0?9\d{2}[-\s]?\d{3}[-\s]?\d{3}|0\d[-\s]?\d{3,4}[-\s]?\d{4})/)||[])[0]||'';let web=(t.match(/(?:https?:\/\/)?(?:www\.)?[a-z0-9.-]+\.(?:com|tw|org|net|io)(?:\/\S*)?/i)||[])[0]||'';$('email').value=email;$('phone').value=phone;$('website').value=web;let clean=lines.filter(l=>!l.includes('@')&&!l.match(/\d{5,}/)&&!l.match(/www\.|https?:/i));if(!$('name').value&&clean[0])$('name').value=clean[0].replace(/[^\p{L}\s·.-]/gu,'').trim();let titleWords=/董事|總經理|經理|副理|協理|執行長|執行長|總監|主任|專員|顧問|教授|CEO|COO|CMO|CTO|Manager|Director|President|Founder/i;let ti=clean.find(l=>titleWords.test(l));if(ti)$('title').value=ti;let companyWords=/公司|集團|股份|有限|協會|基金會|大學|銀行|媒體|科技|出版|Company|Inc\.?|Ltd\.?|Group|University|Bank/i;let co=clean.find(l=>companyWords.test(l)&&l!==ti);if(co)$('company').value=co;}
+function checkDup(){let n=$('name').value.trim().toLowerCase(),e=$('email').value.trim().toLowerCase(),p=$('phone').value.replace(/\D/g,'');let hit=contacts().find(x=>(e&&x.email?.toLowerCase()===e)||(p&&x.phone?.replace(/\D/g,'')===p)||(n&&x.name?.toLowerCase()===n&&$('company').value&&x.company===$('company').value));$('dup').textContent=hit?'⚠️ 可能已存在：'+hit.name+'｜'+(hit.company||''):'✓ 尚未發現重複資料';$('dup').className='status '+(hit?'warn':'ok');return hit}
+['name','email','phone','company'].forEach(id=>$(id).addEventListener('input',checkDup));
+$('saveBtn').onclick=()=>{if(!$('name').value.trim()){alert('請至少填寫姓名');return}let hit=checkDup();if(hit&&!confirm('偵測到可能重複的人脈，仍要新增嗎？'))return;let x={id:window.editingId||((window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString()),createdAt:new Date().toISOString()};fields.forEach(f=>x[f]=$(f).value.trim());let a=contacts().filter(y=>y.id!==x.id);a.unshift(x);window.editingId=null;setContacts(a);alert('已加入人脈資料庫');clearForm();document.querySelector('[data-tab="contacts"]').click()};
+function clearForm(){fields.forEach(f=>{if(['type','level','importance'].includes(f))return;$(f).value=''});$('type').value='合作夥伴';$('level').value='B｜合作關係';$('importance').value='中';$('metDate').value=today();$('preview').style.display='none';$('photo').value='';$('cameraPhoto').value='';imgFile=null;$('uploadBadge').textContent='尚未選取照片';$('uploadBadge').style.background='#fff3cd';$('uploadBadge').style.color='#674d00';$('photoDetails').textContent='';$('ocrStatus').textContent='請先選擇照片。';$('dup').textContent=''} $('clearBtn').onclick=clearForm;
+function render(){let q=$('search').value?.toLowerCase()||'';let a=contacts(),f=a.filter(x=>!q||Object.values(x).join(' ').toLowerCase().includes(q));$('countAll').textContent=a.length;$('countAB').textContent=a.filter(x=>/^A|^B/.test(x.level||'')).length;$('countFollow').textContent=a.filter(x=>x.followDate&&x.followDate>=today()).length;$('list').innerHTML=f.length?f.map(x=>`<div class="person"><h3>${esc(x.name)} <small>${esc(x.title)}</small></h3><div class="meta">${esc(x.company)}${x.email?' · '+esc(x.email):''}${x.phone?' · '+esc(x.phone):''}</div><div class="chips"><span class="chip">${esc(x.level||'')}</span>${(x.tags||'').split(',').filter(Boolean).map(t=>`<span class="chip">${esc(t.trim())}</span>`).join('')}</div>${x.nextAction?`<div class="meta" style="margin-top:7px">下一步：${esc(x.nextAction)} ${x.followDate?'｜'+esc(x.followDate):''}</div>`:''}<div class="actions" style="margin-top:8px"><button class="ghost" onclick="editContact('${x.id}')">編輯</button><button class="danger" onclick="deleteContact('${x.id}')">刪除</button></div></div>`).join(''):'<div class="empty">還沒有名片資料。先拍第一張名片吧。</div>'}
+$('search').oninput=render;
+window.deleteContact=id=>{if(confirm('確定刪除這筆人脈？')){setContacts(contacts().filter(x=>x.id!==id));render()}};
+window.editContact=id=>{let x=contacts().find(x=>x.id===id);if(!x)return;fields.forEach(f=>{if(x[f]!=null)$(f).value=x[f]});window.editingId=id;document.querySelector('[data-tab="import"]').click();checkDup()};
+$('exportBtn').onclick=()=>{let a=contacts();if(!a.length){alert('目前沒有資料');return}let hs=fields;let csv='\ufeff'+hs.join(',')+'\n'+a.map(x=>hs.map(h=>'"'+String(x[h]||'').replace(/"/g,'""')+'"').join(',')).join('\n');let blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),u=URL.createObjectURL(blob),el=document.createElement('a');el.href=u;el.download='名片人脈資料庫_'+today()+'.csv';el.click();URL.revokeObjectURL(u)};
+$('wipeBtn').onclick=()=>{if(confirm('確定清空這台裝置上的全部人脈資料？此動作無法復原。')){localStorage.removeItem('cardContacts');render()}};
+</script>
+</body></html>
